@@ -1,0 +1,44 @@
+---
+- hosts: localhost
+  tasks: 
+  - name: Generate open ssl keyfile
+    shell: openssl rand -base64 756 > /tmp/secrets
+    
+  - name: Copy files to secret 
+    copy:
+     src: /tmp/secrets
+     dest: "roles/{{ item }}/files/secret"
+    with_items:
+      - mongod
+      - mongoc
+      - mongos
+      
+
+- hosts: all
+  remote_user: root
+  become: yes
+  roles:
+  - role: common
+
+- hosts: mongo_servers
+  remote_user: root
+  become: yes
+  roles:
+  - role: mongod
+
+- hosts: mongoc_servers
+  remote_user: root
+  become: yes
+  roles:
+  - role: mongoc
+
+- hosts: mongos_servers
+  remote_user: root
+  become: yes
+  roles:
+  - role: mongos
+
+# run shading test
+#- include: shard_test.yml
+
+

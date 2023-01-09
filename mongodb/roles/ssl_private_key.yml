@@ -1,0 +1,20 @@
+---
+
+- hosts: 127.0.0.1
+  remote_user: root
+  become: yes
+  tasks: 
+    name: Generate open ssl keyfile
+    shell: openssl rand -base64 756 > ~/mongodb_key.pem
+
+- hosts: all
+  remote_user: root
+  become: yes
+  tasks: 
+    name: Copy open ssl keyfile
+    copy:
+      src: ~/mongodb_key.pem
+      dest: /var/lib/mongo
+      user: mongod
+      group: mongod
+      mode: '400'

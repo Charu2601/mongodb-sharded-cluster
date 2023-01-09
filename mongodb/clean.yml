@@ -1,0 +1,50 @@
+---
+- hosts: all
+  remote_user: root
+  become: yes
+  tasks:
+    - systemd: name={{item}} state=stopped
+      with_items:
+        - mongos
+        - mongoc
+        - mongod-mongo1
+        - mongod-mongo2
+        - mongod-mongo3
+      ignore_errors: yes
+    - file: path=/data state=absent
+
+    - name: Remove mongodb-org package
+      yum:
+       name: "{{ item }}"
+       state: absent
+      with_items:
+        - mongodb-database-tools.x86_64
+        - mongodb-mongosh.x86_64
+        - mongodb-org-database.x86_64
+        - mongodb-org-database-tools-extra.x86_64
+        - mongodb-org-mongos.x86_64
+        - mongodb-org-server.x86_64
+        - mongodb-org-shell.x86_64
+        - mongodb-org-tools.x86_64
+
+
+    - name: remove /etc/mongo
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /etc/mongod-mongo1.conf
+        - /etc/mongod-mongo2.conf
+        - /etc/mongod-mongo3.conf
+        - /etc/mongod.conf
+        - /etc/mongoc.conf
+        - /etc/mongos.conf
+        - /var/log/mongo
+        - /var/log/mongodb
+        - /data
+        - /etc/yum.repos.d/mongodb-org-5.0.repo
+        - /tmp/mongodb-2700.sock
+        - /tmp/mongodb-2701.sock
+        - /tmp/mongodb-27017.sock
+        - /tmp/mongodb-2702.sock
+        - /tmp/mongodb-7777.sock 

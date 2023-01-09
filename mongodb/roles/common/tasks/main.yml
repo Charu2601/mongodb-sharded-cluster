@@ -1,0 +1,27 @@
+---
+
+- name: Copy yum repo file
+  copy:
+    src: mongodb-org-5.0.repo
+    dest: /etc/yum.repos.d/mongodb-org-5.0.repo
+
+- name: Install mongodb-org package
+  yum:
+   name: mongodb-org
+   state: present
+   update_cache: yes
+
+- name: Create /etc/hosts
+  template: src=hosts.j2 dest=/etc/hosts
+    
+- name: Create the mongod user
+  user: name=mongod comment="MongoD"
+
+- name: Create the data directory for the namenode metadata
+  file: path={{ mongodb_datadir_prefix }} owner=mongod group=mongod state=directory setype=mongod_var_lib_t recurse=true
+
+- name: create log directory for mongodb
+  file: path=/var/log/mongo state=directory owner=mongod group=mongod setype=mongod_log_t recurse=true
+
+- name: create run directory for mongodb
+  file: path=/var/run/mongo state=directory owner=mongod group=mongod setype=mongod_var_run_t seuser=system_u recurse=true
